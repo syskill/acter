@@ -19,9 +19,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "prmd", "~> 0.13"
-  spec.add_dependency "faraday", "~> 0.15"
-  spec.add_dependency "faraday_middleware", "~> 0.13"
-  spec.add_dependency "rouge", "~> 1.0"
+  spec.add_dependency "faraday", "~> 0.14"
+  spec.add_dependency "faraday_middleware", "~> 0.12"
+  spec.add_dependency "multi_json", "~> 1.10"
+  spec.add_dependency "json_schema", "~> 0.16"
+  spec.add_dependency "rouge", "~> 1.11"
+  spec.add_dependency "activesupport"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"

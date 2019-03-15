@@ -28,8 +28,10 @@ module Acter
       end
 
       @schema = schema
-      @schema.validate!
-      @schema.expand_references!
+      result, errors = @schema.validate
+      result or raise InvalidSchema, "JSON schema validation failed", errors
+      result, errors = @schema.expand_references
+      result or raise InvalidSchema, "JSON schema reference expansion failed", errors
 
       @base_url ||= @schema.links.find do |li|
         li.href && li.rel == "self"
@@ -38,7 +40,6 @@ module Acter
 
       validate_link!
       validate_params!
-
     end
 
     attr_reader :name, :subject, :params, :headers, :schema,
@@ -83,8 +84,7 @@ module Acter
       end
       required_params = Prmd::Link.new(link.data).required_and_optional_parameters.first.keys
       missing_params.concat(required_params - params.keys)
-      missing_params.empty? or
-        raise MissingParameters, missing_params.map(&:inspect).join(", ")
+      missing_params.empty? or raise MissingParameters, missing_params
       @path = link.href.gsub(/\{\(([^)])+\)\}/) do |m|
         "%{#{path_param_base_name(m.first)}}"
       end % path_params

@@ -1,5 +1,5 @@
-require "faraday"
 require "acter/response"
+require "faraday"
 
 module Acter
   class Request
@@ -27,9 +27,3 @@ module Acter
     end
   end
 end
-
-      #options = @render_options
-      #if block_given?
-      #  more_options = yield response
-      #  options = options.merge(Hash(more_options))
-      #end

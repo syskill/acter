@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require "acter"
+
+# FIXME parse options and load schema
+
+puts Acter::Action.new(ARGV, schema).send_request.render

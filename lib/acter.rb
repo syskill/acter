@@ -4,6 +4,7 @@ module Acter
   autoload :Action, "acter/action"
   autoload :Request, "acter/request"
   autoload :Response, "acter/response"
+  autoload :Result, "acter/result"
 
   autoload :Error, "acter/error"
   autoload :InvalidSchema, "acter/error"

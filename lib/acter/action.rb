@@ -1,3 +1,4 @@
+require "acter/result"
 require "active_support/core_ext/object/try"
 require "active_support/core_ext/string/inflections"
 require "cgi"
@@ -33,7 +34,7 @@ module Acter
       result, errors = @schema.expand_references
       result or raise InvalidSchema, "JSON schema reference expansion failed", errors
 
-      @base_url ||= @schema.links.find do |li|
+      @base_url = @schema.links.find do |li|
         li.href && li.rel == "self"
       end.try(:href)
       @base_url or raise InvalidSchema, "schema has no valid link to self"
@@ -46,7 +47,9 @@ module Acter
       :base_url, :link, :method, :path
 
     def send_request(&block)
-      Request.new(method, base_url, path, params, headers, &block).send
+      req = Request.new(method, base_url, path, params, headers)
+      req.client(&block)
+      Result.new(req.send)
     end
 
   private

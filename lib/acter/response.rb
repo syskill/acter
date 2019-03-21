@@ -18,7 +18,7 @@ module Acter
 
     def self.new_from_faraday(faraday_response)
       status_string = "#{faraday_response.status} #{faraday_response.reason_phrase}"
-      new(status_string, response.headers, response.body)
+      new(status_string, faraday_response.headers, faraday_response.body)
     end
 
     attr_reader :status, :success, :headers, :body, :body_is_json

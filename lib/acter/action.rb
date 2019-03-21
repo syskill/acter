@@ -2,6 +2,7 @@ require "acter/result"
 require "active_support/core_ext/object/try"
 require "active_support/core_ext/string/inflections"
 require "cgi"
+require "json_schema"
 require "multi_json"
 require "prmd"
 
@@ -21,16 +22,15 @@ module Acter
           @params[key] = try_json_value(value)
         else
           if idx.zero?
-            @params[@subject] = try_json_value(value)
+            @params[@subject] = try_json_value(arg)
           else
             raise ArgumentError, arg.inspect
           end
         end
       end
 
-      @schema = schema
-      result, errors = @schema.validate
-      result or raise InvalidSchema, "JSON schema validation failed", errors
+      @schema, errors = JsonSchema.parse(schema)
+      @schema or raise InvalidSchema, "JSON schema parsing failed", errors
       result, errors = @schema.expand_references
       result or raise InvalidSchema, "JSON schema reference expansion failed", errors
 
@@ -44,10 +44,10 @@ module Acter
     end
 
     attr_reader :name, :subject, :params, :headers, :schema,
-      :base_url, :link, :method, :path
+      :base_url, :link, :path
 
     def send_request(&block)
-      req = Request.new(method, base_url, path, params, headers)
+      req = Request.new(link.method, base_url, path, params, headers)
       req.client(&block)
       Result.new(req.send)
     end
@@ -69,18 +69,17 @@ module Acter
           li.title.underscore == name
       end
       @link or raise InvalidAction, "schema has no valid link for action #{subject.inspect} -> #{name.inspect}"
-      @method = @link.method.to_s.upcase
       @link
     end
 
     def validate_params!
       missing_params = []
-      path_keys = link.href.scan(/\{\(([^)])+\)\}/).map do |m|
+      path_keys = link.href.scan(/\{\(([^)]+)\)\}/).map do |m|
         path_param_base_name(m.first)
       end
       path_params = path_keys.each_with_object({}) do |k, hsh|
-        if params.key?[k]
-          hsh[k] = params.delete[k]
+        if params.key?(k)
+          hsh[k.to_sym] = params.delete(k)
         else
           missing_params << k
         end
@@ -88,8 +87,8 @@ module Acter
       required_params = Prmd::Link.new(link.data).required_and_optional_parameters.first.keys
       missing_params.concat(required_params - params.keys)
       missing_params.empty? or raise MissingParameters, missing_params
-      @path = link.href.gsub(/\{\(([^)])+\)\}/) do |m|
-        "%{#{path_param_base_name(m.first)}}"
+      @path = link.href.gsub(/\{\(([^)]+)\)\}/) do
+        "%{#{path_param_base_name($1)}}"
       end % path_params
       @params
     end

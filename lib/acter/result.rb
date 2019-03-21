@@ -36,7 +36,7 @@ module Acter
             s << response.body
           else
             lexer = response.body_is_json? ? Rouge::Lexers::JSON : Rouge::Lexers::HTML
-            s << Rouge::Formatters::Terminal256.format(lexer.new.lex(response.body), theme: options.fetch(:theme, DEFAULT_THEME))
+            s << Rouge::Formatters::Terminal256.format(lexer.new.lex(response.body), theme: options[:theme])
           end
           s << "\n"
         end

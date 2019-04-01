@@ -37,7 +37,7 @@ module Acter
       @base_url = @schema.links.find do |li|
         li.href && li.rel == "self"
       end.try(:href)
-      @base_url or raise InvalidSchema, "schema has no valid link to self"
+      @base_url or raise InvalidSchema, "Schema has no valid link to self"
 
       validate_link!
       validate_params!
@@ -63,12 +63,12 @@ module Acter
     end
 
     def validate_link!
-      schema.properties.key?(subject) or raise InvalidAction, "Schema has no property #{subject.inspect}"
+      schema.properties.key?(subject) or raise InvalidSubject, subject, schema
       @link = schema.properties[subject].links.find do |li|
         li.href && li.method && li.title &&
           li.title.underscore == name
       end
-      @link or raise InvalidAction, "schema has no valid link for action #{subject.inspect} -> #{name.inspect}"
+      @link or raise InvalidAction, name, subject, schema
       @link
     end
 
@@ -86,7 +86,7 @@ module Acter
       end
       required_params = Prmd::Link.new(link.data).required_and_optional_parameters.first.keys
       missing_params.concat(required_params - params.keys)
-      missing_params.empty? or raise MissingParameters, missing_params
+      missing_params.empty? or raise MissingParameters, missing_params, name, subject, schema
       @path = link.href.gsub(/\{\(([^)]+)\)\}/) do
         "%{#{path_param_base_name($1)}}"
       end % path_params

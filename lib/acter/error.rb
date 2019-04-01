@@ -13,12 +13,46 @@ module Acter
     end
   end
 
-  class InvalidAction < Error
+  class InvalidCommand < Error
+    def initialize(schema, subject = nil, action = nil, params = nil)
+      @schema = schema
+      @subject = subject
+      @action = action
+      @params = params
+    end
+    attr_reader :schema, :subject, :action, :params
+    def to_s
+      "Invalid command"
+    end
   end
 
-  class MissingParameters < Error
-    def initialize(params)
-      @params = params
+  class InvalidSubject < InvalidCommand
+    def initialize(subject, schema)
+      super(schema, subject)
+    end
+    def message
+      "No such property"
+    end
+    def to_s
+      "#{message}: #{@subject.inspect}"
+    end
+  end
+
+  class InvalidAction < InvalidCommand
+    def initialize(action, subject, schema)
+      super(schema, subject, action)
+    end
+    def message
+      "Property has no valid link for action"
+    end
+    def to_s
+      "#{message}: #{@subject.inspect} -> #{@action.inspect}"
+    end
+  end
+
+  class MissingParameters < InvalidCommand
+    def initialize(params, action, subject, schema)
+      super(schema, subject, action, params)
     end
     def message
       "Missing required parameters"

@@ -14,7 +14,10 @@ module Acter
 
     def client
       unless @client && !block_given?
-        @client = Faraday.new(url: @base_url) do |faraday|
+        @client = Faraday.new(
+          url: @base_url,
+          headers: {'Accept' => "application/json"},
+        ) do |faraday|
           faraday.request :json
           yield faraday if block_given?
           faraday.response :json, content_type: /\bjson(?:;|$)/

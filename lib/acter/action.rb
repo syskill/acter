@@ -4,7 +4,6 @@ require "active_support/core_ext/string/inflections"
 require "cgi"
 require "json_schema"
 require "multi_json"
-require "prmd"
 
 module Acter
   class Action
@@ -64,10 +63,7 @@ module Acter
 
     def validate_link!
       schema.properties.key?(subject) or raise InvalidSubject, subject, schema
-      @link = schema.properties[subject].links.find do |li|
-        li.href && li.method && li.title &&
-          li.title.underscore == name
-      end
+      @link = schema.properties[subject].cromulent_links.find {|li| li.title.underscore == name }
       @link or raise InvalidAction, name, subject, schema
       @link
     end
@@ -77,6 +73,7 @@ module Acter
       path_keys = link.href.scan(/\{\(([^)]+)\)\}/).map do |m|
         path_param_base_name(m.first)
       end
+      path_keys.uniq! and raise InvalidSchema, "Link #{link.pointer.inspect} has multiple path parameters with same base name"
       path_params = path_keys.each_with_object({}) do |k, hsh|
         if params.key?(k)
           hsh[k.to_sym] = params.delete(k)
@@ -84,8 +81,17 @@ module Acter
           missing_params << k
         end
       end
-      required_params = Prmd::Link.new(link.data).required_and_optional_parameters.first.keys
-      missing_params.concat(required_params - params.keys)
+      # XXX these checks seemed like a good idea, but don't work out for me
+      if nil
+        if link.schema && link.schema.properties
+          if path_keys & link.schema.properties.keys
+            raise InvalidSchema, "Path parameter base names and property names of link #{link.pointer.inspect} are not unique"
+          end
+          if link.schema.required
+            missing_params.concat(link.schema.required - params.keys)
+          end
+        end
+      end
       missing_params.empty? or raise MissingParameters, missing_params, name, subject, schema
       @path = link.href.gsub(/\{\(([^)]+)\)\}/) do
         "%{#{path_param_base_name($1)}}"

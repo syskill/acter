@@ -26,19 +26,18 @@ module Acter
       end
 
       StringIO.open do |s|
-        s << response.status << "\n"
+        s.puts response.status
         if options[:show_headers]
-          response.headers.each {|h| s << h << "\n" }
+          response.headers.each(&s.method(:puts))
         end
         if options[:show_body]
-          s << "\n"
+          s.puts
           unless options[:color]
-            s << response.body
+            s.puts response.body
           else
             lexer = response.body_is_json? ? Rouge::Lexers::JSON : Rouge::Lexers::HTML
-            s << Rouge::Formatters::Terminal256.format(lexer.new.lex(response.body), theme: options[:theme])
+            s.puts Rouge::Formatters::Terminal256.format(lexer.new.lex(response.body), theme: options[:theme])
           end
-          s << "\n"
         end
         s.string
       end

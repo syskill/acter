@@ -12,11 +12,13 @@ module Acter
 
     def general_help
       StringIO.open do |s|
-        s << "USAGE:  " << Acter.program_name << " <subject> <action> <params...>" << "\n"
-        s << "\n" << "Perform " << @schema.description << " requests defined by JSON schema" << "\n"
-        s << "\n" << "Valid subjects:" << "\n"
+        s.puts "USAGE:  #{Acter.program_name} <subject> <action> <params...>"
+        s.puts
+        s.puts "Perform #{@schema.description} requests defined by JSON schema"
+        s.puts
+        s.puts "Valid subjects:"
         @schema.properties.keys.sort.each do |subj|
-          s << "   " << subj << "\n"
+          s.puts "   #{subj}"
         end
         s.string
       end
@@ -25,11 +27,14 @@ module Acter
     def help_for_subject(subject)
       prop_schema = @schema.properties[subject]
       StringIO.open do |s|
-        s << "USAGE:  " << Acter.program_name << " " << subject << " <action> <params...>" << "\n"
-        s << "\n" << "Perform " << @schema.description << " " << prop_schema.description << " requests defined by JSON schema" << "\n"
-        s << "\n" << "Valid actions:" << "\n"
+        s.puts "USAGE:  #{Acter.program_name} #{subject} <action> <params...>"
+        s.puts
+        s.puts "Perform #{@schema.description} #{prop_schema.description} requests defined by JSON schema"
+        s.puts
+        s.puts "Valid actions:"
         prop_schema.cromulent_links.each do |li|
-          s << "   " << example_command(li) << "\n      " << li.description << "\n"
+          s.puts "   #{example_command(li)}"
+          s.puts "      #{li.description}"
         end
         s.string
       end
@@ -38,11 +43,13 @@ module Acter
     def help_for_action(action, subject)
       link = @schema.properties[subject].cromulent_links.find {|li| li.title.underscore == action }
       StringIO.open do |s|
-        s << "USAGE:  " << Acter.program_name << " " << subject << " " << example_command(link) << "\n"
-        s << "\n" << link.description << "\n"
+        s.puts "USAGE:  #{Acter.program_name} #{subject} #{example_command(link)}"
+        s.puts
+        s.puts link.description
 
         if link.schema && link.schema.properties
-          s << "\n" << "Parameters:" << "\n"
+          s.puts
+          s.puts "Parameters:"
           link.schema.properties.map do |name, prop_schema|
             next if prop_schema.read_only?
             required = link.schema.required && link.schema.required.include?(name) ? "*REQUIRED*" : "(optional)"
@@ -57,12 +64,14 @@ module Acter
               descr = prop_schema.type.map(&:capitalize).join("|")
             end
             descr = [descr, prop_schema.description].compact.join(" - ")
-            s << "   " << required << " " << name << " : " << descr << "\n"
+            s.puts "   #{required} #{name} : #{descr}"
           end
         end
         s.string
       end
     end
+
+  private
 
     def metasyntactic(property, subject = nil)
       unless property.any_of.empty?

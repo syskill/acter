@@ -31,7 +31,7 @@ module Acter
       super(schema, subject)
     end
     def message
-      "No such property"
+      "Invalid subject"
     end
     def to_s
       "#{message}: #{@subject.inspect}"
@@ -43,7 +43,7 @@ module Acter
       super(schema, subject, action)
     end
     def message
-      "Property has no valid link for action"
+      "No valid link for action"
     end
     def to_s
       "#{message}: #{@subject.inspect} -> #{@action.inspect}"

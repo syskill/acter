@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "json_schema", "~> 0.16"
   spec.add_dependency "rouge", "~> 1.11"
   spec.add_dependency "activesupport"
+  spec.add_dependency "optimist", "~> 3.0"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"

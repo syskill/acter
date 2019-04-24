@@ -7,7 +7,7 @@ require "multi_json"
 
 module Acter
   class Action
-    def initialize(args, schema)
+    def initialize(args, schema_data)
       @subject, @name = args.shift(2)
 
       @params = {}
@@ -28,10 +28,10 @@ module Acter
         end
       end
 
-      @schema, errors = JsonSchema.parse(schema)
-      @schema or raise InvalidSchema, "JSON schema parsing failed", errors
+      @schema, errors = JsonSchema.parse(schema_data)
+      @schema or raise InvalidSchema.new("JSON schema parsing failed", errors)
       result, errors = @schema.expand_references
-      result or raise InvalidSchema, "JSON schema reference expansion failed", errors
+      result or raise InvalidSchema.new("JSON schema reference expansion failed", errors)
 
       @base_url = @schema.links.find do |li|
         li.href && li.rel == "self"
@@ -62,9 +62,9 @@ module Acter
     end
 
     def validate_link!
-      schema.properties.key?(subject) or raise InvalidSubject, subject, schema
+      schema.properties.key?(subject) or raise InvalidSubject.new(subject, schema)
       @link = schema.properties[subject].cromulent_links.find {|li| li.title.underscore == name }
-      @link or raise InvalidAction, name, subject, schema
+      @link or raise InvalidAction.new(name, subject, schema)
       @link
     end
 
@@ -92,7 +92,7 @@ module Acter
           end
         end
       end
-      missing_params.empty? or raise MissingParameters, missing_params, name, subject, schema
+      missing_params.empty? or raise MissingParameters.new(missing_params, name, subject, schema)
       @path = link.href.gsub(/\{\(([^)]+)\)\}/) do
         "%{#{path_param_base_name($1)}}"
       end % path_params

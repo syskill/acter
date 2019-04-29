@@ -7,7 +7,7 @@ module Acter
     DEFAULT_RENDER_OPTIONS = {
       show_body: true,
       show_headers: false,
-      color: true,
+      color: :tty?,
       theme: "monokai",
     }
 
@@ -32,11 +32,11 @@ module Acter
         end
         if options[:show_body]
           s.puts
-          unless options[:color]
-            s.puts response.body
-          else
+          if options[:color] && (options[:color] != :tty? || $>.tty?)
             lexer = response.body_is_json? ? Rouge::Lexers::JSON : Rouge::Lexers::HTML
             s.puts Rouge::Formatters::Terminal256.format(lexer.new.lex(response.body), theme: options[:theme])
+          else
+            s.puts response.body
           end
         end
         s.string

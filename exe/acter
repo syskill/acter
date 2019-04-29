@@ -1,7 +1,27 @@
 #!/usr/bin/env ruby
 
 require "acter"
+require "optparse"
+require "optparse/uri"
 
-# FIXME parse options and load schema
+schema_path = nil
+render_options = {}
 
-puts Acter::Action.new(ARGV, schema).send_request.render
+opt_parser = OptionParser.new do |opts|
+  opts.on("-sPATH", "--schema=PATH", URI, "Path to JSON schema") do |v|
+    schema_path = v.scheme ? v : Pathname.new(v.to_s)
+  end
+  opts.on("-H[BOOL]", "--show-headers[=BOOL]", TrueClass, "Output response headers (default: no)") do |v|
+    render_options[:show_headers] = v
+  end
+  opts.on("-b[BOOL]", "--show-body[=BOOL]", TrueClass, "Output response body (default: yes)") do |v|
+    render_options[:show_body] = v
+  end
+  opts.on("-c[BOOL]", "--color[=BOOL]", TrueClass, "Colorize output (default: only if output is a TTY)") do |v|
+    render_options[:color] = v
+  end
+end
+
+opt_parser.parse!
+Acter.options_text = opt_parser.summarize
+Acter.run(ARGV, schema_path, render_options)

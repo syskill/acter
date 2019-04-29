@@ -46,11 +46,11 @@ module Acter
     end
   end
 
-  def self.main(args)
-    schema_data = load_schema_data
+  def self.run(args, schema_path = nil, render_options = nil)
+    schema_data = load_schema_data(schema_path)
     action = Action.new(args, schema_data)
     result = action.send_request
-    puts result.render
+    puts result.render(render_options)
     result.success?
   rescue InvalidCommand => e
     handle_invalid_command(e)
@@ -59,4 +59,6 @@ module Acter
   def self.program_name
     @@program_name ||= File.basename($0, ".rb")
   end
+
+  class << self; attr_accessor :options_text end
 end

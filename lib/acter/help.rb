@@ -12,7 +12,8 @@ module Acter
 
     def general_help
       StringIO.open do |s|
-        s.puts "USAGE:  #{Acter.program_name} <subject> <action> <params...>"
+        s.puts "USAGE:  #{Acter.program_name}#{Acter.options_text ? " [options]" : ""} <subject> <action> <params...>"
+        s.puts Acter.options_text if Acter.options_text
         s.puts
         s.puts "Perform #{@schema.description} requests defined by JSON schema"
         s.puts
@@ -27,7 +28,8 @@ module Acter
     def help_for_subject(subject)
       prop_schema = @schema.properties[subject]
       StringIO.open do |s|
-        s.puts "USAGE:  #{Acter.program_name} #{subject} <action> <params...>"
+        s.puts "USAGE:  #{Acter.program_name}#{Acter.options_text ? " [options]" : ""} #{subject} <action> <params...>"
+        s.puts Acter.options_text if Acter.options_text
         s.puts
         s.puts "Perform #{@schema.description} #{prop_schema.description} requests defined by JSON schema"
         s.puts
@@ -43,7 +45,8 @@ module Acter
     def help_for_action(action, subject)
       link = @schema.properties[subject].cromulent_links.find {|li| li.title.underscore == action }
       StringIO.open do |s|
-        s.puts "USAGE:  #{Acter.program_name} #{subject} #{example_command(link)}"
+        s.puts "USAGE:  #{Acter.program_name}#{Acter.options_text ? " [options]" : ""} #{subject} #{example_command(link)}"
+        s.puts Acter.options_text if Acter.options_text
         s.puts
         s.puts link.description
 

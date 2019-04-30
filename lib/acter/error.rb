@@ -34,7 +34,11 @@ module Acter
       "Invalid subject"
     end
     def to_s
-      "#{message}: #{@subject.inspect}"
+      if @subject.nil? || @subject == "help"
+        "Command-line help"
+      else
+        "#{message}: #{@subject.inspect}"
+      end
     end
   end
 
@@ -46,7 +50,11 @@ module Acter
       "No valid link for action"
     end
     def to_s
-      "#{message}: #{@subject.inspect} -> #{@action.inspect}"
+      if @action.nil? || @action == "help"
+        "Command-line help"
+      else
+        "#{message}: #{@subject.inspect} -> #{@action.inspect}"
+      end
     end
   end
 
@@ -59,6 +67,15 @@ module Acter
     end
     def to_s
       "#{message}: #{@params.map(&:inspect).join(", ")}"
+    end
+  end
+
+  class HelpWanted < InvalidCommand
+    def initialize(action, subject, schema)
+      super(schema, subject, action)
+    end
+    def to_s
+      "Command-line help"
     end
   end
 end

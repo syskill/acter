@@ -8,6 +8,8 @@ schema_path = nil
 render_options = {}
 
 opt_parser = OptionParser.new do |opts|
+  opts.banner += "\n\nPerform HTTP requests defined by JSON schema\n\n"
+
   opts.on("-sPATH", "--schema=PATH", URI, "Path to JSON schema") do |v|
     schema_path = v.scheme ? v : Pathname.new(v.to_s)
   end
@@ -20,8 +22,18 @@ opt_parser = OptionParser.new do |opts|
   opts.on("-c[BOOL]", "--color[=BOOL]", TrueClass, "Colorize output (default: only if output is a TTY)") do |v|
     render_options[:color] = v
   end
+  opts.on("-h", "--help", "Help for subject or action") do
+    Acter.help_wanted = true
+  end
 end
 
-opt_parser.parse!
+begin
+  opt_parser.parse!
+rescue OptionParser::ParseError => e
+  puts e
+  puts opt_parser
+  exit 1
+end
+
 Acter.options_text = opt_parser.summarize
-Acter.run(ARGV, schema_path, render_options)
+Acter.run(ARGV, schema_path, render_options) or exit 1

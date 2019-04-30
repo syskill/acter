@@ -18,47 +18,51 @@ module Acter
   autoload :InvalidSubject, "acter/error"
   autoload :InvalidAction, "acter/error"
   autoload :MissingParameters, "acter/error"
+  autoload :HelpWanted, "acter/error"
 
-  def self.load_schema_data(path = nil)
-    path ||= Pathname.glob("schema.{json,yml}").first
-    if path.is_a?(String)
-      uri = URI(path)
-      source = uri.scheme ? uri : Pathname.new(path)
-    elsif path.respond_to?(:read) && path.respond_to?(:to_s)
-      source = path
-    else
-      raise ArgumentError, "Argument to load_schema must be a String or a Pathname-like object"
+  class << self
+    def load_schema_data(path = nil)
+      path ||= Pathname.glob("schema.{json,yml}").first
+      if path.is_a?(String)
+        uri = URI(path)
+        source = uri.scheme ? uri : Pathname.new(path)
+      elsif path.respond_to?(:read) && path.respond_to?(:to_s)
+        source = path
+      else
+        raise ArgumentError, "Argument to load_schema must be a String or a Pathname-like object"
+      end
+      MultiJson.load(source.read)
     end
-    MultiJson.load(source.read)
-  end
 
-  def self.handle_invalid_command(exn)
-    puts exn
-    puts
-    help = Help.new(exn.schema)
-    case exn
-    when MissingParameters
-      puts help.help_for_action(exn.action, exn.subject)
-    when InvalidAction
-      puts help.help_for_subject(exn.subject)
-    else
-      puts help.general_help
+    def handle_invalid_command(exn)
+      puts exn
+      puts
+      help = Help.new(exn.schema)
+      case exn
+      when HelpWanted, MissingParameters
+        puts help.help_for_action(exn.action, exn.subject)
+      when InvalidAction
+        puts help.help_for_subject(exn.subject)
+      else
+        puts help.general_help
+      end
     end
-  end
 
-  def self.run(args, schema_path = nil, render_options = nil)
-    schema_data = load_schema_data(schema_path)
-    action = Action.new(args, schema_data)
-    result = action.send_request
-    puts result.render(render_options)
-    result.success?
-  rescue InvalidCommand => e
-    handle_invalid_command(e)
-  end
+    def run(args, schema_path = nil, render_options = nil)
+      schema_data = load_schema_data(schema_path)
+      action = Action.new(args, schema_data)
+      result = action.send_request
+      puts result.render(render_options)
+      result.success?
+    rescue InvalidCommand => e
+      handle_invalid_command(e)
+    end
 
-  def self.program_name
-    @@program_name ||= File.basename($0, ".rb")
-  end
+    def program_name
+      @program_name ||= File.basename($0, ".rb")
+    end
 
-  class << self; attr_accessor :options_text end
+    attr_accessor :help_wanted, :options_text
+    alias help_wanted? help_wanted
+  end
 end

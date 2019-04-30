@@ -40,6 +40,10 @@ module Acter
 
       validate_link!
       validate_params!
+
+      if Acter.help_wanted?
+        raise HelpWanted.new(@name, @subject, @schema)
+      end
     end
 
     attr_reader :name, :subject, :params, :headers, :schema,

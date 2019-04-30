@@ -1,6 +1,7 @@
 require "active_support/core_ext/module/delegation"
 require "rouge"
 require "stringio"
+require "term/ansicolor"
 
 module Acter
   class Result
@@ -25,14 +26,20 @@ module Acter
         options.merge!(Hash(more_options))
       end
 
+      colorize = options[:color] && (options[:color] != :tty? || $>.tty?)
+
       StringIO.open do |s|
-        s.puts response.status
+        if colorize
+          s.puts Term::ANSIColor.bold(response.status)
+        else
+          s.puts response.status
+        end
         if options[:show_headers]
           response.headers.each(&s.method(:puts))
         end
         if options[:show_body]
           s.puts
-          if options[:color] && (options[:color] != :tty? || $>.tty?)
+          if colorize
             lexer = response.body_is_json? ? Rouge::Lexers::JSON : Rouge::Lexers::HTML
             s.puts Rouge::Formatters::Terminal256.format(lexer.new.lex(response.body), theme: options[:theme])
           else

@@ -4,6 +4,7 @@ require "json_schema-example_parsing"
 require "multi_json"
 require "open-uri"
 require "pathname"
+require "yaml"
 
 module Acter
   autoload :Action, "acter/action"
@@ -31,7 +32,11 @@ module Acter
       else
         raise ArgumentError, "Argument to load_schema must be a String or a Pathname-like object"
       end
-      MultiJson.load(source.read)
+      if source.to_s =~ /\.ya?ml$/
+        YAML.load(source.read)
+      else
+        MultiJson.load(source.read)
+      end
     end
 
     def handle_invalid_command(exn)

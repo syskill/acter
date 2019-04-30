@@ -3,6 +3,7 @@
 require "acter"
 require "optparse"
 require "optparse/uri"
+require "pathname"
 
 schema_path = nil
 render_options = {}

@@ -1,10 +1,12 @@
-require "active_support/core_ext/module/delegation"
+require "forwardable"
 require "rouge"
 require "stringio"
 require "term/ansicolor"
 
 module Acter
   class Result
+    extend Forwardable
+
     DEFAULT_RENDER_OPTIONS = {
       show_body: true,
       show_headers: false,
@@ -17,7 +19,7 @@ module Acter
     end
 
     attr_reader :response
-    delegate :success?, to: :response
+    def_delegator :@response, :success?
 
     def render(options = nil)
       options = DEFAULT_RENDER_OPTIONS.merge(Hash(options))

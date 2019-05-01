@@ -13,18 +13,16 @@ module Acter
       @params = {}
       @headers = {}
       args.each_with_index do |arg, idx|
-        case arg
-        when /^(?<key>[^:=]+):(?<value>.*)/
+        case
+        when /^(?<key>[^:=]+):(?<value>.*)/ =~ arg
           warn "Value of header #{key.inspect} is empty" if value.empty?
           @headers[key] = value
-        when /^(?<key>[^:=]+)=(?<value>.*)/
+        when /^(?<key>[^:=]+)=(?<value>.*)/ =~ arg
           @params[key] = try_json_value(value)
+        when idx.zero?
+          @params[@subject] = try_json_value(arg)
         else
-          if idx.zero?
-            @params[@subject] = try_json_value(arg)
-          else
-            raise ArgumentError, arg.inspect
-          end
+          raise ArgumentError, arg.inspect
         end
       end
 

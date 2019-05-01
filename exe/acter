@@ -9,22 +9,27 @@ schema_path = nil
 render_options = {}
 
 opt_parser = OptionParser.new do |opts|
+  opts.version = Acter::VERSION
   opts.banner += "\n\nPerform HTTP requests defined by JSON schema\n\n"
 
   opts.on("-sPATH", "--schema=PATH", URI, "Path to JSON schema") do |v|
     schema_path = v.scheme ? v : Pathname.new(v.to_s)
   end
-  opts.on("-H[BOOL]", "--show-headers[=BOOL]", TrueClass, "Output response headers (default: no)") do |v|
+  opts.on("-H", "--[no-]show-headers", :OPTIONAL, TrueClass, "Output response headers (default: no)") do |v|
     render_options[:show_headers] = v
   end
-  opts.on("-b[BOOL]", "--show-body[=BOOL]", TrueClass, "Output response body (default: yes)") do |v|
+  opts.on("-b", "--[no-]show-body", :OPTIONAL, TrueClass, "Output response body (default: yes)") do |v|
     render_options[:show_body] = v
   end
-  opts.on("-c[BOOL]", "--color[=BOOL]", TrueClass, "Colorize output (default: only if output is a TTY)") do |v|
+  opts.on("-c", "--[no-]color", :OPTIONAL, TrueClass, "Colorize output (default: only if output is a TTY)") do |v|
     render_options[:color] = v
   end
   opts.on("-h", "--help", "Help for subject or action") do
     Acter.help_wanted = true
+  end
+  opts.on("-V", "--version", "Version info") do
+    puts opts.ver
+    exit
   end
 end
 

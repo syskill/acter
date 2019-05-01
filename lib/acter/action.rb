@@ -37,11 +37,10 @@ module Acter
       @base_url or raise InvalidSchema, "Schema has no valid link to self"
 
       validate_link!
-      validate_params!
-
       if Acter.help_wanted?
         raise HelpWanted.new(@name, @subject, @schema)
       end
+      validate_params!
     end
 
     attr_reader :name, :subject, :params, :headers, :schema,

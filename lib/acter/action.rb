@@ -82,15 +82,12 @@ module Acter
           missing_params << k
         end
       end
-      # XXX these checks seemed like a good idea, but don't work out for me
-      if nil
-        if link.schema && link.schema.properties
-          if path_keys & link.schema.properties.keys
-            raise InvalidSchema, "Path parameter base names and property names of link #{link.pointer.inspect} are not unique"
-          end
-          if link.schema.required
-            missing_params.concat(link.schema.required - params.keys)
-          end
+      if link.schema && link.schema.properties
+        unless (path_keys & link.schema.properties.keys).empty?
+          raise InvalidSchema, "Path parameter base names and property names of link #{link.pointer.inspect} are not unique"
+        end
+        if link.schema.required
+          missing_params.concat(link.schema.required - params.keys)
         end
       end
       missing_params.empty? or raise MissingParameters.new(missing_params, name, subject, schema)

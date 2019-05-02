@@ -53,7 +53,7 @@ module Acter
         if link.schema && link.schema.properties
           s.puts
           s.puts "Parameters:"
-          link.schema.properties.map do |name, prop_schema|
+          link.schema.properties.each do |name, prop_schema|
             next if prop_schema.read_only?
             descr = nil
             if !prop_schema.default.nil?
@@ -66,9 +66,8 @@ module Acter
               descr = prop_schema.type.map(&:capitalize).join("|")
             end
             descr = [descr, prop_schema.description].compact.join(" - ")
-            ###required = link.schema.required && link.schema.required.include?(name) ? "*REQUIRED*" : "(optional)"
-            ###s.puts "   #{required} #{name} : #{descr}"
-            s.puts "   #{name} : #{descr}"
+            required = link.schema.required && link.schema.required.include?(name) ? " (REQUIRED)" : ""
+            s.puts "   #{name}#{required} : #{descr}"
           end
         end
         s.string

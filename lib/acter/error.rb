@@ -2,6 +2,12 @@ module Acter
   class Error < StandardError
   end
 
+  class NoSchema < Error
+    def to_s
+      "Schema not found"
+    end
+  end
+
   class InvalidSchema < Error
     def initialize(message, errors = nil)
       @message = message
@@ -22,7 +28,11 @@ module Acter
     end
     attr_reader :schema, :subject, :action, :params
     def to_s
-      "Invalid command"
+      if @schema.nil?
+        "Command-line help"
+      else
+        "Invalid command"
+      end
     end
   end
 

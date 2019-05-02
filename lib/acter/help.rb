@@ -14,12 +14,14 @@ module Acter
       StringIO.open do |s|
         s.puts "USAGE:  #{Acter.program_name}#{Acter.options_text ? " [options]" : ""} <subject> <action> <params...>"
         s.puts Acter.options_text if Acter.options_text
-        s.puts
-        s.puts "Perform #{@schema.description} requests defined by JSON schema"
-        s.puts
-        s.puts "Valid subjects:"
-        @schema.properties.keys.sort.each do |subj|
-          s.puts "   #{subj}"
+        if @schema
+          s.puts
+          s.puts "Perform #{@schema.description} requests defined by JSON schema"
+          s.puts
+          s.puts "Valid subjects:"
+          @schema.properties.keys.sort.each do |subj|
+            s.puts "   #{subj}"
+          end
         end
         s.string
       end

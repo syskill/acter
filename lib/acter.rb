@@ -14,6 +14,7 @@ module Acter
   autoload :Response, "acter/response"
   autoload :Result, "acter/result"
 
+  autoload :NoSchema, "acter/error"
   autoload :InvalidSchema, "acter/error"
   autoload :InvalidCommand, "acter/error"
   autoload :InvalidSubject, "acter/error"
@@ -23,7 +24,7 @@ module Acter
 
   class << self
     def load_schema_data(path = nil)
-      path ||= Pathname.glob("schema.{json,yml}").first
+      path ||= Pathname.glob("schema.{json,yml}").first or raise NoSchema
       if path.is_a?(String)
         uri = URI(path)
         source = uri.scheme ? uri : Pathname.new(path)
@@ -61,6 +62,8 @@ module Acter
       result.success?
     rescue InvalidCommand => e
       handle_invalid_command(e)
+    rescue NoSchema
+      handle_invalid_command(InvalidCommand.new(nil))
     end
 
     def program_name

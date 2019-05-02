@@ -10,6 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Command line client for APIs described by JSON Schema"
   spec.homepage      = "https://github.com/syskill/acter"
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})

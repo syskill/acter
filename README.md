@@ -1,8 +1,6 @@
 # Acter
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/acter`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Acter is a command line client for HTTP APIs described by a JSON schema (cf. https://json-schema.org).
 
 ## Installation
 
@@ -22,7 +20,37 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    $ acter <subject> <action> <args...>
+
+Arguments may take the form `<param>=<value>` to set a request parameter, or `<Header>:<value>` to set an HTTP header for the request. As a special case, if the first argument does not contain `=` or `:`, it will be interpreted as `<subject>=<arg>`, i.e. the argument will be passed as a parameter named after the subject.
+
+Ensure that the JSON schema describing your API is in a file named `schema.json` or `schema.yml` in the current directory. If not, you will have to specify a path or URL using the `-s` option.
+
+To make acter your own, simply copy the executable or create a symlink with a new name.
+
+### Advanced Usage
+
+```ruby
+schema_data = Acter.load_schema_data(SCHEMA_PATH_OR_URL)
+begin
+  action = Acter::Action.new(ARGV, schema_data)
+rescue Acter::InvalidCommand => e
+  Acter.handle_invalid_command(e)
+  exit 1
+end
+result = action.send_request do |faraday_connection|
+  ##
+  ## apply middleware to connection or whatever
+  ##
+end
+puts result.render(render_options) do |faraday_response|
+  ##
+  ## return hash of conditional rendering options depending on the response,
+  ## action, phase of the moon, etc.
+  ##
+end
+exit 1 unless result.success?
+```
 
 ## Development
 
@@ -32,4 +60,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/acter.
+Bug reports and pull requests are welcome on GitHub at https://github.com/syskill/acter.

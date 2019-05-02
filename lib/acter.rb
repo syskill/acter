@@ -63,6 +63,7 @@ module Acter
     rescue InvalidCommand => e
       handle_invalid_command(e)
     rescue NoSchema
+      raise unless args.empty? || args == %w"help"
       handle_invalid_command(InvalidCommand.new(nil))
     end
 

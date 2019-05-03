@@ -1,4 +1,3 @@
-require "acter/version"
 require "json_schema-cromulent_links"
 require "json_schema-example_parsing"
 require "multi_json"
@@ -7,21 +6,6 @@ require "pathname"
 require "yaml"
 
 module Acter
-  autoload :Action, "acter/action"
-  autoload :Error, "acter/error"
-  autoload :Help, "acter/help"
-  autoload :Request, "acter/request"
-  autoload :Response, "acter/response"
-  autoload :Result, "acter/result"
-
-  autoload :NoSchema, "acter/error"
-  autoload :InvalidSchema, "acter/error"
-  autoload :InvalidCommand, "acter/error"
-  autoload :InvalidSubject, "acter/error"
-  autoload :InvalidAction, "acter/error"
-  autoload :MissingParameters, "acter/error"
-  autoload :HelpWanted, "acter/error"
-
   class << self
     def load_schema_data(path = nil)
       path ||= Pathname.glob("schema.{json,yml}").first or raise NoSchema
@@ -75,3 +59,11 @@ module Acter
     alias help_wanted? help_wanted
   end
 end
+
+require_relative "acter/action"
+require_relative "acter/error"
+require_relative "acter/help"
+require_relative "acter/request"
+require_relative "acter/response"
+require_relative "acter/result"
+require_relative "acter/version"

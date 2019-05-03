@@ -4,7 +4,7 @@ module Acter
   class Response
     def initialize(status, headers, body)
       @status = status
-      @success = (200..299).include?(status[/\d+/])
+      @success = (200..299).include?(status[/\d+/].to_i)
       @headers = headers.sort.map {|a| a.join(": ") }
       @body = case body
         when String

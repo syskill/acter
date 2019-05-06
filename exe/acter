@@ -15,6 +15,9 @@ opt_parser = OptionParser.new do |opts|
   opts.on("-sPATH", "--schema=PATH", URI, "Path to JSON schema") do |v|
     schema_path = v.scheme ? v : Pathname.new(v.to_s)
   end
+  opts.on("-S", "--[no-]show-status", :OPTIONAL, TrueClass, "Output response status code (default: yes)") do |v|
+    render_options[:show_status] = v
+  end
   opts.on("-H", "--[no-]show-headers", :OPTIONAL, TrueClass, "Output response headers (default: no)") do |v|
     render_options[:show_headers] = v
   end

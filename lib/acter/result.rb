@@ -10,6 +10,7 @@ module Acter
     DEFAULT_RENDER_OPTIONS = {
       show_body: true,
       show_headers: false,
+      show_status: true,
       color: :tty?,
       theme: "monokai",
     }
@@ -31,10 +32,12 @@ module Acter
       colorize = options[:color] && (options[:color] != :tty? || $>.tty?)
 
       StringIO.open do |s|
-        if colorize
-          s.puts Term::ANSIColor.bold(response.status)
-        else
-          s.puts response.status
+        if options[:show_status]
+          if colorize
+            s.puts Term::ANSIColor.bold(response.status)
+          else
+            s.puts response.status
+          end
         end
         if options[:show_headers]
           response.headers.each(&s.method(:puts))

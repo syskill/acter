@@ -43,12 +43,13 @@ result = action.send_request do |faraday_connection|
   ## apply middleware to connection or whatever
   ##
 end
-puts result.render(render_options) do |faraday_response|
+output = result.render(render_options) do |acter_response|
   ##
   ## return hash of conditional rendering options depending on the response,
   ## action, phase of the moon, etc.
   ##
 end
+puts output
 exit 1 unless result.success?
 ```
 

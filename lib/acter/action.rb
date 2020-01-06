@@ -8,6 +8,7 @@ require "multi_json"
 module Acter
   class Action
     def initialize(args, schema_data)
+      args = args.dup
       @subject, @name = args.shift(2)
 
       @params = {}

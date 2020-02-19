@@ -83,13 +83,8 @@ module Acter
           missing_params << k
         end
       end
-      if link.schema && link.schema.properties
-        unless (path_keys & link.schema.properties.keys).empty?
-          raise InvalidSchema, "Path parameter base names and property names of link #{link.pointer.inspect} are not unique"
-        end
-        if link.schema.required
-          missing_params.concat(link.schema.required - params.keys)
-        end
+      if link.schema && link.schema.properties && link.schema.required
+        missing_params.concat(link.schema.required - path_keys - params.keys)
       end
       missing_params.empty? or raise MissingParameters.new(missing_params, name, subject, schema)
       @path = link.href.gsub(/\{\(([^)]+)\)\}/) do
